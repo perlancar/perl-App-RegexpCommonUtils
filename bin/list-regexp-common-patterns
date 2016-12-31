@@ -58,18 +58,24 @@ sub app {
     for my $pat0 (@$patterns) {
         my $pat = { @$pat0 };
         my $name = "";
+        my $opts = {};
         for (@{ $pat->{name} }) {
-            last if /^-/;
-            $name .= (length $name ? "." : "") . $_;
+            if (/^-/) {
+                (my $opt = $_) =~ s/=.*//;
+                $opts->{$opt} = 1;
+            } else {
+                $name .= (length $name ? "." : "") . $_;
+            }
         }
 
         push @res, {
             name => $name,
+            options => join(", ", sort keys %$opts),
         };
     }
 
     if ($args{detail}) {
-        $resmeta->{'table.fields'} = [qw/name/];
+        $resmeta->{'table.fields'} = [qw/name options/];
     } else {
         @res = map { $_->{name} } @res;
     }
