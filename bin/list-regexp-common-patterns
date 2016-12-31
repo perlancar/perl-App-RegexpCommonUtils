@@ -1,0 +1,92 @@
+#!perl
+
+# DATE
+# VERSION
+
+#use 5.010001;
+use strict;
+use warnings;
+
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+
+$SPEC{app} = {
+    v => 1.1,
+    args => {
+        name => {
+            summary => 'Module name, without the `Regexp::Common::` prefix',
+            schema => 'perl::modname',
+            pos => 0,
+            req => 1,
+            completion => sub {
+                require Complete::Module;
+                my %args = @_;
+                Complete::Module::complete_module(
+                    word => $args{word},
+                    ns_prefix => 'Regexp::Common',
+                );
+            },
+        },
+        detail => {
+            schema => ['bool*', is=>1],
+            cmdline_aliases => {l=>{}},
+        },
+    },
+};
+sub app {
+    require Capture::Tiny;
+
+    my %args = @_;
+
+    my ($stdout, $stderr, $exit) = Capture::Tiny::capture(
+        sub {
+            system(
+                $^X,
+                "-MRegexp::Common::Patch::DumpPatterns",
+                "-MRegexp::Common::$args{name}",
+                "-e1",
+            );
+        },
+    );
+    my $patterns = eval $stdout;
+    die if $@;
+
+    my $resmeta = {};
+    my @res;
+
+    for my $pat0 (@$patterns) {
+        my $pat = { @$pat0 };
+        my $name = "";
+        for (@{ $pat->{name} }) {
+            last if /^-/;
+            $name .= (length $name ? "." : "") . $_;
+        }
+
+        push @res, {
+            name => $name,
+        };
+    }
+
+    if ($args{detail}) {
+        $resmeta->{'table.fields'} = [qw/name/];
+    } else {
+        @res = map { $_->{name} } @res;
+    }
+
+    [200, "OK", \@res, $resmeta];
+}
+
+Perinci::CmdLine::Any->new(
+    url => '/main/app',
+)->run;
+
+# ABSTRACT: List all patterns inside a Regexp::Common::* module
+# PODNAME:
+
+=head1 SYNOPSIS
+
+ % list-regexp-common-patterns URI
+
+
+=head1 DESCRIPTION
