@@ -1,0 +1,29 @@
+#!perl
+
+# DATE
+# VERSION
+
+#use 5.010001;
+use strict;
+use warnings;
+
+use PERLANCAR::Module::List;
+
+my $res = PERLANCAR::Module::List::list_modules(
+    'Regexp::Common::', {list_modules=>1, recurse=>1});
+for (sort keys %$res) {
+    s/\ARegexp::Common:://;
+    print "$_\n";
+}
+
+# ABSTRACT: List all installed Regexp::Common::* modules
+# PODNAME:
+
+=head1 SYNOPSIS
+
+ % list-regexp-common-modules
+
+
+=head1 DESCRIPTION
+
+This is a simple script to list all installed C<Regexp::Common::*> modules.
