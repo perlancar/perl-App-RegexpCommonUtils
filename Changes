@@ -1,5 +1,3 @@
-Revision history for App-RegexpCommonUtils
-
 0.002   2016-12-31 (PERLANCAR)
 
 	- Add utilities: get-regex-common-pattern, list-regexp-common-patterns.
