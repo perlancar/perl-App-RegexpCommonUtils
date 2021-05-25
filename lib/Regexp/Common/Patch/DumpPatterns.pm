@@ -1,6 +1,8 @@
 package Regexp::Common::Patch::DumpPatterns;
 
+# AUTHORITY
 # DATE
+# DIST
 # VERSION
 
 use 5.010001;
@@ -8,8 +10,7 @@ use strict;
 no warnings;
 
 use Data::Dmp;
-use Module::Patch 0.19 qw();
-use base qw(Module::Patch);
+use parent qw(Module::Patch);
 
 our %config;
 
